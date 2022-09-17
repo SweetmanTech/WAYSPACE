@@ -9,6 +9,80 @@ contract WayspaceTest is Test {
 
     WAYSPACE ws;
 
+    /// -----------------------------------------------------------------------
+    /// purchase testing
+    /// -----------------------------------------------------------------------
+    function testFail_blockPurchasePresale() public {
+        string[] memory _musicMetadata = new string[](12);
+        for (uint32 i = 0; i < _musicMetadata.length; i++) {
+            _musicMetadata[i] = "MUSIC_METADATA";
+        }
+        ws = new WAYSPACE(_musicMetadata);
+
+        vm.warp(ws.publicSaleStart() - 1);
+        ws.purchase{value: 0.0222 ether}(1);
+    }
+
+    function testFail_blockPurchaseWrongPrice() public {
+        string[] memory _musicMetadata = new string[](12);
+        for (uint32 i = 0; i < _musicMetadata.length; i++) {
+            _musicMetadata[i] = "MUSIC_METADATA";
+        }
+        ws = new WAYSPACE(_musicMetadata);
+
+        ws.purchase{value: 0.0221 ether}(1);
+        ws.purchase{value: 0.0223 ether}(1);
+    }
+
+    function testCan_purchase() public {
+        string[] memory _musicMetadata = new string[](12);
+        for (uint32 i = 0; i < _musicMetadata.length; i++) {
+            _musicMetadata[i] = "MUSIC_METADATA";
+        }
+        ws = new WAYSPACE(_musicMetadata);
+
+        uint256 firstMintedTokenId = ws.purchase{value: 0.0222 ether}(1);
+        assertEq(firstMintedTokenId, 1);
+        assertEq(ws.songCount(1), 0);
+        assertEq(ws.songCount(2), 1);
+
+        vm.warp(block.timestamp + ws.secondsBetweenDrops() - 1);
+        firstMintedTokenId = ws.purchase{value: 0.0444 ether}(2);
+        assertEq(firstMintedTokenId, 2);
+        assertEq(ws.songCount(1), 0);
+        assertEq(ws.songCount(2), 3);
+    }
+
+    function testCan_purchaseLastSong() public {
+        string[] memory _musicMetadata = new string[](12);
+        for (uint32 i = 0; i < _musicMetadata.length; i++) {
+            _musicMetadata[i] = "MUSIC_METADATA";
+        }
+        ws = new WAYSPACE(_musicMetadata);
+
+        vm.warp(block.timestamp + 5 * ws.secondsBetweenDrops() - 1);
+        uint256 firstMintedTokenId = ws.purchase{value: 0.0888 ether}(4);
+        assertEq(firstMintedTokenId, 1);
+        assertEq(ws.songCount(9), 0);
+        assertEq(ws.songCount(10), 4);
+
+        vm.warp(block.timestamp + 1);
+        firstMintedTokenId = ws.purchase{value: 0.0888 ether}(4);
+        assertEq(firstMintedTokenId, 5);
+        assertEq(ws.songCount(11), 0);
+        assertEq(ws.songCount(12), 4);
+
+        vm.warp(block.timestamp + 100 * ws.secondsBetweenDrops());
+        firstMintedTokenId = ws.purchase{value: 0.0888 ether}(4);
+        assertEq(firstMintedTokenId, 9);
+        assertEq(ws.songCount(11), 0);
+        assertEq(ws.songCount(12), 8);
+    }
+
+    /// -----------------------------------------------------------------------
+    /// bundle testing
+    /// -----------------------------------------------------------------------
+
     function testFail_blockPurchaseBundlePresale() public {
         string[] memory _musicMetadata = new string[](12);
         for (uint32 i = 0; i < _musicMetadata.length; i++) {
@@ -18,6 +92,17 @@ contract WayspaceTest is Test {
 
         vm.warp(ws.publicSaleStart() - 1);
         ws.purchaseBundle{value: 0.0333 ether}(1);
+    }
+
+    function testFail_blockPurchaseBundleWrongPrice() public {
+        string[] memory _musicMetadata = new string[](12);
+        for (uint32 i = 0; i < _musicMetadata.length; i++) {
+            _musicMetadata[i] = "MUSIC_METADATA";
+        }
+        ws = new WAYSPACE(_musicMetadata);
+
+        ws.purchaseBundle{value: 0.0332 ether}(1);
+        ws.purchaseBundle{value: 0.0334 ether}(1);
     }
 
     function testFail_blockPurchaseBundlePostSale() public {
