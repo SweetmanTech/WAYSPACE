@@ -19,7 +19,8 @@ contract PuzzleDropTest is Test {
     function testCan_publicSaleEnd() public {
         pd = new PuzzleDrop("WAYSPACE", "JACKIE");
         uint64 end = pd.publicSaleEnd();
-        uint64 halloween = 1667260799;
+        /// @dev Ends on Halloween - October 31 2022 - 23:59:59PM ET
+        uint64 halloween = 1667275199;
         assertEq(end, halloween);
     }
 
