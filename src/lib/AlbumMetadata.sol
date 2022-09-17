@@ -13,10 +13,11 @@ contract AlbumMetadata {
     /// @notice Zora Drops Metadata Renderer
     IMetadataRenderer immutable zoraDropMetadataRenderer;
 
-    constructor(address _dropMetadataRenderer) {
+    constructor(address _dropMetadataRenderer, string[] memory _musicMetadata) {
+        setupAlbumMetadata(_musicMetadata);
         zoraDropMetadataRenderer = IMetadataRenderer(_dropMetadataRenderer);
-        string memory initialBaseURI = "hello world";
-        string memory initialContractURI = "contract metadata";
+        string memory initialBaseURI = _musicMetadata[1];
+        string memory initialContractURI = _musicMetadata[1];
         bytes memory initialData = abi.encode(
             initialBaseURI,
             initialContractURI

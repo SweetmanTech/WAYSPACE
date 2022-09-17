@@ -8,10 +8,8 @@ import "./interfaces/IMetadataRenderer.sol";
 contract WAYSPACE is AlbumMetadata, PuzzleDrop {
     constructor(string[] memory _musicMetadata, address _dropMetadataRenderer)
         PuzzleDrop("WAYSPACE", "JACKIE")
-        AlbumMetadata(_dropMetadataRenderer)
-    {
-        setupAlbumMetadata(_musicMetadata);
-    }
+        AlbumMetadata(_dropMetadataRenderer, _musicMetadata)
+    {}
 
     /// @notice This allows the user to purchase a edition edition
     /// at the given price in the contract.
