@@ -42,7 +42,7 @@ contract PuzzleDropTest is Test {
         vm.warp(block.timestamp + pd.secondsBetweenDrops());
         assertEq(pd.dropsCreated(), 12);
 
-        vm.warp(block.timestamp + pd.secondsBetweenDrops());
+        vm.warp(block.timestamp + 100 * pd.secondsBetweenDrops());
         assertEq(pd.dropsCreated(), 12);
     }
 }
