@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
+import "../interfaces/IMetadataRenderer.sol";
+
 contract AlbumMetadata {
     /// @notice mapping from tokenId to songId
     mapping(uint256 => uint8) internal songIds;
@@ -8,6 +10,20 @@ contract AlbumMetadata {
     mapping(uint8 => string) internal songURIs;
     /// @notice mapping from songId to number of songs minted
     mapping(uint8 => uint256) public songCount;
+    /// @notice Zora Drops Metadata Renderer
+    IMetadataRenderer immutable zoraDropMetadataRenderer;
+
+    constructor(address _dropMetadataRenderer, string[] memory _musicMetadata) {
+        setupAlbumMetadata(_musicMetadata);
+        zoraDropMetadataRenderer = IMetadataRenderer(_dropMetadataRenderer);
+        string memory initialBaseURI = _musicMetadata[1];
+        string memory initialContractURI = _musicMetadata[1];
+        bytes memory initialData = abi.encode(
+            initialBaseURI,
+            initialContractURI
+        );
+        zoraDropMetadataRenderer.initializeWithData(initialData);
+    }
 
     /// @notice Returns the Uniform Resource Identifier (URI) for `tokenId` token.
     function songURI(uint8 _songId) public view returns (string memory) {
@@ -45,5 +61,25 @@ contract AlbumMetadata {
     modifier onlyValidSongId(uint8 _songId) {
         require(bytes(songURI(_songId)).length > 0, "song does not exist");
         _;
+    }
+
+    /// @notice - returns address of metadata renderer
+    function metadataRenderer() external view returns (address) {
+        return address(zoraDropMetadataRenderer);
+    }
+
+    /// @notice updates zora metadata renderer to latest version
+    function updateMetadataRenderer(uint8 _latestSong) internal {
+        string memory base = zoraDropMetadataRenderer.tokenURI(1);
+        if (
+            keccak256(abi.encodePacked(base)) !=
+            keccak256(abi.encodePacked(songURI(_latestSong), "1"))
+        ) {
+            zoraDropMetadataRenderer.updateMetadataBase(
+                address(this),
+                songURI(_latestSong),
+                songURI(_latestSong)
+            );
+        }
     }
 }

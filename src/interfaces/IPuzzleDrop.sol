@@ -9,7 +9,6 @@ interface IPuzzleDrop {
         bool presaleActive;
         // Price for public sale
         uint256 publicSalePrice;
-        uint256 publicSaleBundlePrice;
         // Timed sale actions for public sale
         uint64 publicSaleStart;
         uint64 publicSaleEnd;
@@ -25,6 +24,8 @@ interface IPuzzleDrop {
         uint256 totalMinted;
         // The total supply available
         uint256 maxSupply;
+        // Bundle price for public sale
+        uint256 publicSaleBundlePrice;
     }
 
     /// @notice Event emitted for each sale

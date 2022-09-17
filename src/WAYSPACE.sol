@@ -3,13 +3,13 @@ pragma solidity ^0.8.15;
 
 import "./lib/PuzzleDrop.sol";
 import "./lib/AlbumMetadata.sol";
+import "./interfaces/IMetadataRenderer.sol";
 
 contract WAYSPACE is AlbumMetadata, PuzzleDrop {
-    constructor(string[] memory _musicMetadata)
+    constructor(string[] memory _musicMetadata, address _dropMetadataRenderer)
         PuzzleDrop("WAYSPACE", "JACKIE")
-    {
-        setupAlbumMetadata(_musicMetadata);
-    }
+        AlbumMetadata(_dropMetadataRenderer, _musicMetadata)
+    {}
 
     /// @notice This allows the user to purchase a edition edition
     /// at the given price in the contract.
@@ -21,6 +21,7 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop {
         returns (uint256)
     {
         uint256 firstMintedTokenId = _purchase(_quantity, dropsCreated());
+        updateMetadataRenderer(dropsCreated());
         return firstMintedTokenId;
     }
 
