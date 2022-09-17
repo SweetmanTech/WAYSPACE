@@ -36,8 +36,7 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop {
         uint8 songIdOne = 1;
         uint8 songIdTwo = 2;
         _purchase(_quantity, songIdOne);
-        uint256 firstMintedTokenId = _purchase(_quantity, songIdTwo);
-        return firstMintedTokenId;
+        return _purchase(_quantity, songIdTwo);
     }
 
     /// @notice This allows the user to purchase a edition edition
