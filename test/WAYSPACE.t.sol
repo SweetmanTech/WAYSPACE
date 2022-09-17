@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "src/WAYSPACE.sol";
-import "src/lib/DropMetadataRenderer.sol";
+import "src/lib/ZoraDropMetadataRenderer/DropMetadataRenderer.sol";
 
 contract WayspaceTest is Test {
     /// @notice Struct to store metadata info and update data
