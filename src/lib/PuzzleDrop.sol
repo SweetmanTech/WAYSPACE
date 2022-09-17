@@ -65,7 +65,6 @@ contract PuzzleDrop is ERC721A, IPuzzleDrop {
                 publicSaleActive: _publicSaleActive(),
                 presaleActive: false,
                 publicSalePrice: singlePrice,
-                publicSaleBundlePrice: bundlePrice,
                 publicSaleStart: publicSaleStart,
                 publicSaleEnd: publicSaleEnd,
                 presaleStart: 0,
@@ -73,7 +72,8 @@ contract PuzzleDrop is ERC721A, IPuzzleDrop {
                 presaleMerkleRoot: 0x0000000000000000000000000000000000000000000000000000000000000000,
                 totalMinted: _totalMinted(),
                 maxSupply: type(uint256).max,
-                maxSalePurchasePerAddress: 0
+                maxSalePurchasePerAddress: 0,
+                publicSaleBundlePrice: bundlePrice
             });
     }
 
