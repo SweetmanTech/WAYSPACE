@@ -7,7 +7,7 @@ import "../interfaces/IPuzzleDrop.sol";
 contract PuzzleDrop is ERC721A, IPuzzleDrop {
     /// @notice Price for Single
     uint256 public singlePrice = 22200000000000000;
-    /// @notice Price for Single
+    /// @notice Price for Bundle
     uint256 public bundlePrice = 33300000000000000;
     /// @notice Public Sale Start Time
     uint64 public immutable publicSaleStart;
