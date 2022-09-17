@@ -11,9 +11,9 @@ contract TeamSplitsTest is Test, TeamSplits {
         assertEq(recipients().length, 14);
     }
 
-    function testFail_payout14thSplit() public {
+    function testFail_payout15thSplit() public {
         /// @dev there are 14 recipients.
-        _paySplit(14, 100);
+        _paySplit(15, 100);
     }
 
     function testCan_payoutSplit() public {
@@ -23,7 +23,7 @@ contract TeamSplitsTest is Test, TeamSplits {
 
         for (uint8 i = 0; i < recipients().length; i++) {
             uint256 preBalance = address(recipients()[i]).balance;
-            _paySplit(i, 100);
+            _paySplit(i + 1, 100);
             assertEq(address(recipients()[i]).balance, preBalance + 100);
         }
     }

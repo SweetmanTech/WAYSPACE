@@ -20,7 +20,7 @@ contract TeamSplits {
     ];
 
     function _paySplit(uint8 _songId, uint256 _amount) internal {
-        (bool sent, bytes memory data) = _recipients[_songId].call{
+        (bool sent, bytes memory data) = _recipients[_songId - 1].call{
             value: _amount
         }("");
         require(sent, "Failed to send Ether");
