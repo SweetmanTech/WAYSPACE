@@ -11,6 +11,11 @@ contract TeamSplitsTest is Test, TeamSplits {
         assertEq(recipients().length, 14);
     }
 
+    function testFail_payout0thSplit() public {
+        /// @dev starts at index 1.
+        _paySplit(0, 100);
+    }
+
     function testFail_payout15thSplit() public {
         /// @dev there are 14 recipients.
         _paySplit(15, 100);
