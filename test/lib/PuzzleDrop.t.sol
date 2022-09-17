@@ -23,6 +23,29 @@ contract PuzzleDropTest is Test {
         assertEq(end, halloween);
     }
 
+    function testCan_weekNumber() public {
+        pd = new PuzzleDrop("WAYSPACE", "JACKIE");
+        assertEq(pd.weekNumber(), 1);
+
+        vm.warp(block.timestamp + pd.secondsBetweenDrops());
+        assertEq(pd.weekNumber(), 2);
+
+        vm.warp(block.timestamp + pd.secondsBetweenDrops());
+        assertEq(pd.weekNumber(), 3);
+
+        vm.warp(block.timestamp + pd.secondsBetweenDrops());
+        assertEq(pd.weekNumber(), 4);
+
+        vm.warp(block.timestamp + pd.secondsBetweenDrops());
+        assertEq(pd.weekNumber(), 5);
+
+        vm.warp(block.timestamp + pd.secondsBetweenDrops());
+        assertEq(pd.weekNumber(), 6);
+
+        vm.warp(block.timestamp + 100 * pd.secondsBetweenDrops());
+        assertEq(pd.weekNumber(), 106);
+    }
+
     function testCan_dropsCreated() public {
         pd = new PuzzleDrop("WAYSPACE", "JACKIE");
         assertEq(pd.dropsCreated(), 2);
@@ -44,20 +67,5 @@ contract PuzzleDropTest is Test {
 
         vm.warp(block.timestamp + 100 * pd.secondsBetweenDrops());
         assertEq(pd.dropsCreated(), 12);
-    }
-
-    function testCan_dropsAvailable() public {
-        pd = new PuzzleDrop("WAYSPACE", "JACKIE");
-        vm.warp(block.timestamp - 1);
-        assertEq(pd.dropsAvailable(), 0);
-
-        vm.warp(pd.publicSaleStart());
-        assertEq(pd.dropsAvailable(), 2);
-
-        vm.warp(pd.publicSaleStart() + pd.secondsBetweenDrops() * 6);
-        assertEq(pd.dropsAvailable(), 12);
-
-        vm.warp(pd.publicSaleEnd());
-        assertEq(pd.dropsAvailable(), 0);
     }
 }
