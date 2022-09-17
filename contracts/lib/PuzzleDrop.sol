@@ -12,8 +12,7 @@ contract PuzzleDrop is ERC721A, IPuzzleDrop {
     /// @notice Public Sale Start Time
     uint64 public immutable publicSaleStart;
     /// @notice Public Sale End Time -
-    /// @dev Halloween - October 31 2022 - 23:59:59PM GMT
-    uint64 public immutable publicSaleEnd = 1667260799;
+    uint64 public immutable publicSaleEnd;
     /// @notice Seconds Till Next Drop
     uint256 public immutable secondsBetweenDrops;
 
@@ -25,7 +24,11 @@ contract PuzzleDrop is ERC721A, IPuzzleDrop {
     constructor(string memory _name, string memory _symbol)
         ERC721A(_name, _symbol)
     {
+        /// @dev 1 week live & 3 minutes in testing
         publicSaleStart = uint64(block.timestamp);
+        /// @dev Ends on Halloween - October 31 2022 - 23:59:59PM GMT
+        publicSaleEnd = 1667260799;
+        /// @dev 1 week between drops live & 3 minutes in testing
         secondsBetweenDrops = block.chainid == 1 ? 604800 : 180;
     }
 
