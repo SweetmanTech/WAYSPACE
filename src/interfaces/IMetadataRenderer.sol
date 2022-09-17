@@ -7,4 +7,10 @@ interface IMetadataRenderer {
     function contractURI() external view returns (string memory);
 
     function initializeWithData(bytes memory initData) external;
+
+    function updateMetadataBase(
+        address target,
+        string memory baseUri,
+        string memory newContractUri
+    ) external;
 }

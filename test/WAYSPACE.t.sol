@@ -13,7 +13,9 @@ contract WayspaceTest is Test {
         dmr = new DropMetadataRenderer();
         string[] memory _musicMetadata = new string[](12);
         for (uint32 i = 0; i < _musicMetadata.length; i++) {
-            _musicMetadata[i] = "MUSIC_METADATA";
+            _musicMetadata[i] = string(
+                abi.encodePacked("MUSIC_METADATA", i, "?")
+            );
         }
         ws = new WAYSPACE(_musicMetadata, address(dmr));
     }
@@ -67,6 +69,34 @@ contract WayspaceTest is Test {
         assertEq(firstMintedTokenId, 9);
         assertEq(ws.songCount(11), 0);
         assertEq(ws.songCount(12), 8);
+    }
+
+    function testCan_getMetadataRendererTokenURI() public {
+        ws.purchase{value: 0.0888 ether}(4);
+        vm.prank(address(ws));
+        string memory dmrMetadata = dmr.tokenURI(1);
+        string memory wsMetadata = string(abi.encodePacked(ws.songURI(2), "1"));
+        assertEq(dmrMetadata, wsMetadata);
+    }
+
+    function testCan_updateMetadataRendererTokenURIToSecondDrop() public {
+        vm.warp(block.timestamp + ws.secondsBetweenDrops());
+        ws.purchase{value: 0.0888 ether}(4);
+        vm.prank(address(ws));
+        string memory dmrMetadata = dmr.tokenURI(1);
+        string memory wsMetadata = string(abi.encodePacked(ws.songURI(4), "1"));
+        assertEq(dmrMetadata, wsMetadata);
+    }
+
+    function testCan_updateMetadataRendererTokenURIToFinalDrop() public {
+        vm.warp(ws.publicSaleEnd() - 1);
+        ws.purchase{value: 0.0888 ether}(4);
+        vm.prank(address(ws));
+        string memory dmrMetadata = dmr.tokenURI(1);
+        string memory wsMetadata = string(
+            abi.encodePacked(ws.songURI(12), "1")
+        );
+        assertEq(dmrMetadata, wsMetadata);
     }
 
     /// -----------------------------------------------------------------------
