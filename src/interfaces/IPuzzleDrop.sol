@@ -38,12 +38,4 @@ interface IPuzzleDrop {
         uint256 indexed pricePerToken,
         uint256 firstPurchasedTokenId
     );
-
-    /// @notice Struct to store metadata info and update data
-    struct MetadataURIInfo {
-        string base;
-        string extension;
-        string contractURI;
-        uint256 freezeAt;
-    }
 }

@@ -3,10 +3,12 @@ pragma solidity ^0.8.15;
 
 import "./lib/PuzzleDrop.sol";
 import "./lib/AlbumMetadata.sol";
+import "./interfaces/IMetadataRenderer.sol";
 
 contract WAYSPACE is AlbumMetadata, PuzzleDrop {
-    constructor(string[] memory _musicMetadata)
+    constructor(string[] memory _musicMetadata, address _dropMetadataRenderer)
         PuzzleDrop("WAYSPACE", "JACKIE")
+        AlbumMetadata(_dropMetadataRenderer)
     {
         setupAlbumMetadata(_musicMetadata);
     }
@@ -72,20 +74,5 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop {
 
         uint8 songId = songIds[tokenId];
         return songURI(songId);
-    }
-
-    /// @notice - returns metadata similar to tokenURI
-    function metadataBaseByContract(address)
-        external
-        view
-        returns (MetadataURIInfo memory)
-    {
-        return
-            MetadataURIInfo({
-                base: songURI(dropsCreated()),
-                extension: "",
-                contractURI: songURI(dropsCreated()),
-                freezeAt: 0
-            });
     }
 }

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
+import "../interfaces/IMetadataRenderer.sol";
+
 contract AlbumMetadata {
     /// @notice mapping from tokenId to songId
     mapping(uint256 => uint8) internal songIds;
@@ -8,6 +10,12 @@ contract AlbumMetadata {
     mapping(uint8 => string) internal songURIs;
     /// @notice mapping from songId to number of songs minted
     mapping(uint8 => uint256) public songCount;
+    /// @notice Zora Drops Metadata Renderer
+    IMetadataRenderer immutable zoraDropMetadataRenderer;
+
+    constructor(address _dropMetadataRenderer) {
+        zoraDropMetadataRenderer = IMetadataRenderer(_dropMetadataRenderer);
+    }
 
     /// @notice Returns the Uniform Resource Identifier (URI) for `tokenId` token.
     function songURI(uint8 _songId) public view returns (string memory) {
@@ -49,6 +57,6 @@ contract AlbumMetadata {
 
     /// @notice - returns address of metadata renderer
     function metadataRenderer() external view returns (address) {
-        return address(this);
+        return address(zoraDropMetadataRenderer);
     }
 }
