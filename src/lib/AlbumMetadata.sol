@@ -15,6 +15,13 @@ contract AlbumMetadata {
 
     constructor(address _dropMetadataRenderer) {
         zoraDropMetadataRenderer = IMetadataRenderer(_dropMetadataRenderer);
+        string memory initialBaseURI = "hello world";
+        string memory initialContractURI = "contract metadata";
+        bytes memory initialData = abi.encode(
+            initialBaseURI,
+            initialContractURI
+        );
+        zoraDropMetadataRenderer.initializeWithData(initialData);
     }
 
     /// @notice Returns the Uniform Resource Identifier (URI) for `tokenId` token.
