@@ -13,6 +13,8 @@ contract PuzzleDrop is ERC721A, IPuzzleDrop {
     uint64 public publicSaleStart = 0;
     /// @notice Public Sale End Time
     uint64 public publicSaleEnd = 1692974064;
+    /// @notice Seconds Till Next Drop
+    uint256 public immutable secondsTillNextDrop;
 
     /// @notice Sale is inactive
     error Sale_Inactive();
@@ -21,7 +23,9 @@ contract PuzzleDrop is ERC721A, IPuzzleDrop {
 
     constructor(string memory _name, string memory _symbol)
         ERC721A(_name, _symbol)
-    {}
+    {
+        secondsTillNextDrop = block.chainid == 1 ? 604800 : 180;
+    }
 
     /// @notice Public sale active
     modifier onlyPublicSaleActive() {
