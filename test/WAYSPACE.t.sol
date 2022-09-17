@@ -207,4 +207,35 @@ contract WayspaceTest is Test {
         assertEq(ws.songCount(7), 3);
         assertEq(ws.songCount(8), 3);
     }
+
+    /// -----------------------------------------------------------------------
+    /// metadataBaseByContract testing - for volfm UI
+    /// -----------------------------------------------------------------------
+    function testCan_metadataBaseByContract() public {
+        string[] memory _musicMetadata = new string[](12);
+        for (uint32 i = 0; i < _musicMetadata.length; i++) {
+            _musicMetadata[i] = string(abi.encodePacked("MUSIC_METADATA", i));
+        }
+        ws = new WAYSPACE(_musicMetadata);
+
+        assertEq(ws.metadataBaseByContract(address(this)), ws.songURI(2));
+
+        vm.warp(block.timestamp + ws.secondsBetweenDrops());
+        assertEq(ws.metadataBaseByContract(address(this)), ws.songURI(4));
+
+        vm.warp(block.timestamp + ws.secondsBetweenDrops());
+        assertEq(ws.metadataBaseByContract(address(this)), ws.songURI(6));
+
+        vm.warp(block.timestamp + ws.secondsBetweenDrops());
+        assertEq(ws.metadataBaseByContract(address(this)), ws.songURI(8));
+
+        vm.warp(block.timestamp + ws.secondsBetweenDrops());
+        assertEq(ws.metadataBaseByContract(address(this)), ws.songURI(10));
+
+        vm.warp(block.timestamp + ws.secondsBetweenDrops());
+        assertEq(ws.metadataBaseByContract(address(this)), ws.songURI(12));
+
+        vm.warp(ws.publicSaleEnd() + 1);
+        assertEq(ws.metadataBaseByContract(address(this)), ws.songURI(12));
+    }
 }
