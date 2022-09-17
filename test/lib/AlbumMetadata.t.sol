@@ -4,8 +4,10 @@ pragma solidity ^0.8.13;
 import "forge-std/Test.sol";
 import "src/lib/AlbumMetadata.sol";
 
-contract PuzzleDropTest is Test, AlbumMetadata {
+contract AlbumMetadataTest is Test, AlbumMetadata {
     function setUp() public {}
+
+    constructor() AlbumMetadata(address(0)) {}
 
     function testCan_setSongURI() public {
         _setSongURI(1, 1, 1);
