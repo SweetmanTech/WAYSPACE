@@ -86,7 +86,8 @@ contract PuzzleDrop is ERC721A, IPuzzleDrop {
     function dropsCreated() public view returns (uint256) {
         uint256 weekNumber = (block.timestamp - publicSaleStart) /
             secondsBetweenDrops;
-        return weekNumber >= 6 ? 12 : 2 * (1 + weekNumber);
+        bool isMaxWeek = weekNumber >= 6;
+        return isMaxWeek ? 12 : 2 * (1 + weekNumber);
     }
 
     /// @notice returns number of available drops.
