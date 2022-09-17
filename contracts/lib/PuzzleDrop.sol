@@ -10,11 +10,12 @@ contract PuzzleDrop is ERC721A, IPuzzleDrop {
     /// @notice Price for Single
     uint256 public bundlePrice = 33300000000000000;
     /// @notice Public Sale Start Time
-    uint64 public publicSaleStart = 0;
-    /// @notice Public Sale End Time
-    uint64 public publicSaleEnd = 1692974064;
+    uint64 public immutable publicSaleStart;
+    /// @notice Public Sale End Time -
+    /// @dev Halloween 2022 - 11:59PM ET
+    uint64 public immutable publicSaleEnd = 1667275199;
     /// @notice Seconds Till Next Drop
-    uint256 public immutable secondsTillNextDrop;
+    uint256 public immutable secondsBetweenDrops;
 
     /// @notice Sale is inactive
     error Sale_Inactive();
@@ -24,7 +25,8 @@ contract PuzzleDrop is ERC721A, IPuzzleDrop {
     constructor(string memory _name, string memory _symbol)
         ERC721A(_name, _symbol)
     {
-        secondsTillNextDrop = block.chainid == 1 ? 604800 : 180;
+        publicSaleStart = uint64(block.timestamp);
+        secondsBetweenDrops = block.chainid == 1 ? 604800 : 180;
     }
 
     /// @notice Public sale active
@@ -67,7 +69,7 @@ contract PuzzleDrop is ERC721A, IPuzzleDrop {
                 presaleEnd: 0,
                 presaleMerkleRoot: 0x0000000000000000000000000000000000000000000000000000000000000000,
                 totalMinted: _totalMinted(),
-                maxSupply: 1000000,
+                maxSupply: type(uint256).max,
                 maxSalePurchasePerAddress: 0
             });
     }
@@ -75,5 +77,15 @@ contract PuzzleDrop is ERC721A, IPuzzleDrop {
     /// @notice Returns the starting token ID.
     function _startTokenId() internal pure override returns (uint256) {
         return 1;
+    }
+
+    /// @notice returns number of created drops.
+    function dropsCreated() public view returns (uint256) {
+        return (block.timestamp - publicSaleStart) / secondsBetweenDrops;
+    }
+
+    /// @notice returns number of available drops.
+    function dropsAvailable() public view returns (uint256) {
+        return _publicSaleActive() ? dropsCreated() : 0;
     }
 }
