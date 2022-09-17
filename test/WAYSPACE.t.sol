@@ -23,6 +23,17 @@ contract WayspaceTest is Test {
         ws.purchase{value: 0.0222 ether}(1);
     }
 
+    function testFail_blockPurchasePostSale() public {
+        string[] memory _musicMetadata = new string[](12);
+        for (uint32 i = 0; i < _musicMetadata.length; i++) {
+            _musicMetadata[i] = "MUSIC_METADATA";
+        }
+        ws = new WAYSPACE(_musicMetadata);
+
+        vm.warp(ws.publicSaleEnd());
+        ws.purchase{value: 0.0222 ether}(1);
+    }
+
     function testFail_blockPurchaseWrongPrice() public {
         string[] memory _musicMetadata = new string[](12);
         for (uint32 i = 0; i < _musicMetadata.length; i++) {
