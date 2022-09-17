@@ -20,7 +20,7 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop {
         onlyValidPrice(singlePrice, _quantity)
         returns (uint256)
     {
-        uint256 firstMintedTokenId = _purchase(_quantity, 1);
+        uint256 firstMintedTokenId = _purchase(_quantity, dropsCreated());
         return firstMintedTokenId;
     }
 
