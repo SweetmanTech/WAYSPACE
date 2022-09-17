@@ -3,9 +3,10 @@ pragma solidity ^0.8.15;
 
 import "./lib/PuzzleDrop.sol";
 import "./lib/AlbumMetadata.sol";
+import "./lib/TeamSplits.sol";
 import "./interfaces/IMetadataRenderer.sol";
 
-contract WAYSPACE is AlbumMetadata, PuzzleDrop {
+contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits {
     constructor(string[] memory _musicMetadata, address _dropMetadataRenderer)
         PuzzleDrop("WAYSPACE", "JACKIE")
         AlbumMetadata(_dropMetadataRenderer, _musicMetadata)
@@ -22,6 +23,7 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop {
     {
         uint256 firstMintedTokenId = _purchase(_quantity, dropsCreated());
         updateMetadataRenderer(dropsCreated());
+        _paySplit(dropsCreated(), address(this).balance);
         return firstMintedTokenId;
     }
 
@@ -38,6 +40,8 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop {
         uint8 songIdOne = songIdTwo - 1;
         uint256 firstMintedTokenId = _purchase(_quantity, songIdOne);
         _purchase(_quantity, songIdTwo);
+        _paySplit(songIdTwo, address(this).balance / 2);
+        _paySplit(songIdTwo, address(this).balance);
         return firstMintedTokenId;
     }
 
@@ -55,7 +59,7 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop {
         emit Sale({
             to: msg.sender,
             quantity: quantity,
-            pricePerToken: bundlePrice,
+            pricePerToken: singlePrice,
             firstPurchasedTokenId: start
         });
         return start;
