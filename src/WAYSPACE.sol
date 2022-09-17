@@ -78,8 +78,14 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop {
     function metadataBaseByContract(address)
         external
         view
-        returns (string memory)
+        returns (MetadataURIInfo memory)
     {
-        return songURI(dropsCreated());
+        return
+            MetadataURIInfo({
+                base: songURI(dropsCreated()),
+                extension: "",
+                contractURI: songURI(dropsCreated()),
+                freezeAt: 0
+            });
     }
 }

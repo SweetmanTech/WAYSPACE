@@ -218,24 +218,24 @@ contract WayspaceTest is Test {
         }
         ws = new WAYSPACE(_musicMetadata);
 
-        assertEq(ws.metadataBaseByContract(address(this)), ws.songURI(2));
+        assertEq(ws.metadataBaseByContract(address(this)).base, ws.songURI(2));
 
         vm.warp(block.timestamp + ws.secondsBetweenDrops());
-        assertEq(ws.metadataBaseByContract(address(this)), ws.songURI(4));
+        assertEq(ws.metadataBaseByContract(address(this)).base, ws.songURI(4));
 
         vm.warp(block.timestamp + ws.secondsBetweenDrops());
-        assertEq(ws.metadataBaseByContract(address(this)), ws.songURI(6));
+        assertEq(ws.metadataBaseByContract(address(this)).base, ws.songURI(6));
 
         vm.warp(block.timestamp + ws.secondsBetweenDrops());
-        assertEq(ws.metadataBaseByContract(address(this)), ws.songURI(8));
+        assertEq(ws.metadataBaseByContract(address(this)).base, ws.songURI(8));
 
         vm.warp(block.timestamp + ws.secondsBetweenDrops());
-        assertEq(ws.metadataBaseByContract(address(this)), ws.songURI(10));
+        assertEq(ws.metadataBaseByContract(address(this)).base, ws.songURI(10));
 
         vm.warp(block.timestamp + ws.secondsBetweenDrops());
-        assertEq(ws.metadataBaseByContract(address(this)), ws.songURI(12));
+        assertEq(ws.metadataBaseByContract(address(this)).base, ws.songURI(12));
 
         vm.warp(ws.publicSaleEnd() + 1);
-        assertEq(ws.metadataBaseByContract(address(this)), ws.songURI(12));
+        assertEq(ws.metadataBaseByContract(address(this)).base, ws.songURI(12));
     }
 }
