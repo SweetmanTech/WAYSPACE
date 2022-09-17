@@ -6,13 +6,8 @@ import "src/WAYSPACE.sol";
 import "src/lib/ZoraDropMetadataRenderer/DropMetadataRenderer.sol";
 
 contract WayspaceTest is Test {
-    /// @notice Struct to store metadata info and update data
-    struct MetadataURIInfo {
-        string base;
-        string extension;
-        string contractURI;
-        uint256 freezeAt;
-    }
+    WAYSPACE ws;
+    DropMetadataRenderer dmr;
 
     function setUp() public {
         dmr = new DropMetadataRenderer();
@@ -22,9 +17,6 @@ contract WayspaceTest is Test {
         }
         ws = new WAYSPACE(_musicMetadata, address(dmr));
     }
-
-    WAYSPACE ws;
-    DropMetadataRenderer dmr;
 
     /// -----------------------------------------------------------------------
     /// purchase testing
