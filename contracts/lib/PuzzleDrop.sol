@@ -12,8 +12,8 @@ contract PuzzleDrop is ERC721A, IPuzzleDrop {
     /// @notice Public Sale Start Time
     uint64 public immutable publicSaleStart;
     /// @notice Public Sale End Time -
-    /// @dev Halloween 2022 - 11:59PM ET
-    uint64 public immutable publicSaleEnd = 1667275199;
+    /// @dev Halloween - October 31 2022 - 23:59:59PM GMT
+    uint64 public immutable publicSaleEnd = 1667260799;
     /// @notice Seconds Till Next Drop
     uint256 public immutable secondsBetweenDrops;
 
