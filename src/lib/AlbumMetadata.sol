@@ -46,4 +46,9 @@ contract AlbumMetadata {
         require(bytes(songURI(_songId)).length > 0, "song does not exist");
         _;
     }
+
+    /// @notice - returns address of metadata renderer
+    function metadataRenderer() external view returns (address) {
+        return address(this);
+    }
 }

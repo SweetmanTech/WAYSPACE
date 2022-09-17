@@ -73,4 +73,13 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop {
         uint8 songId = songIds[tokenId];
         return songURI(songId);
     }
+
+    /// @notice - returns metadata similar to tokenURI
+    function metadataBaseByContract(address)
+        external
+        view
+        returns (string memory)
+    {
+        return songURI(dropsCreated());
+    }
 }
