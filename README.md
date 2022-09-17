@@ -5,7 +5,6 @@
 
 ![image](https://user-images.githubusercontent.com/23249402/190872568-4bd2572d-4889-433a-8325-3ffc0de8ef02.png)
 
-
 ### Metadata
 
 - [Welcome Home](https://ipfs.io/ipfs/bafyreicngdorfolbpfqlqg5lmjyvgiosspdq7cz34l5zaystkdeajsljfi/metadata.json)
@@ -14,6 +13,9 @@
 - [Somewhere Somehow](https://ipfs.io/ipfs/bafyreiab463job4ctsodtlfsfdfqfgejxkurrluz43xgipeezrqtjrr2vu/metadata.json)
 
 ### Testing Params
+
+- `DropMetadataRenderer` (Ethereum) - [0x5914d9a241008B9F02f22811bF3A77e02B84D226](https://etherscan.io/address/0x5914d9a241008b9f02f22811bf3a77e02b84d226#code)
+- `DropMetadataRenderer` (Polygon Mumbai) - [0xA26389e52C740EFa6AB60DBC3E2580dA8b524CE0](https://mumbai.polygonscan.com/address/0xA26389e52C740EFa6AB60DBC3E2580dA8b524CE0#code)
 
 ```
 [
