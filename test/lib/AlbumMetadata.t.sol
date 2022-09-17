@@ -7,7 +7,7 @@ import "src/lib/AlbumMetadata.sol";
 contract AlbumMetadataTest is Test, AlbumMetadata {
     function setUp() public {}
 
-    constructor() AlbumMetadata(address(0)) {}
+    constructor(address _metadataRenderer) AlbumMetadata(_metadataRenderer) {}
 
     function testCan_setSongURI() public {
         _setSongURI(1, 1, 1);
