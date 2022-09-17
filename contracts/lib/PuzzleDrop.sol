@@ -10,9 +10,11 @@ contract PuzzleDrop is ERC721A, IPuzzleDrop {
     /// @notice Price for Single
     uint256 public bundlePrice = 33300000000000000;
     /// @notice Public Sale Start Time
-    uint64 public publicSaleStart = 0;
-    /// @notice Public Sale End Time
-    uint64 public publicSaleEnd = 1692974064;
+    uint64 public immutable publicSaleStart;
+    /// @notice Public Sale End Time -
+    uint64 public immutable publicSaleEnd;
+    /// @notice Seconds Till Next Drop
+    uint256 public immutable secondsBetweenDrops;
 
     /// @notice Sale is inactive
     error Sale_Inactive();
@@ -21,7 +23,14 @@ contract PuzzleDrop is ERC721A, IPuzzleDrop {
 
     constructor(string memory _name, string memory _symbol)
         ERC721A(_name, _symbol)
-    {}
+    {
+        /// @dev 1 week live & 3 minutes in testing
+        publicSaleStart = uint64(block.timestamp);
+        /// @dev Ends on Halloween - October 31 2022 - 23:59:59PM GMT
+        publicSaleEnd = 1667260799;
+        /// @dev 1 week between drops live & 3 minutes in testing
+        secondsBetweenDrops = block.chainid == 1 ? 604800 : 180;
+    }
 
     /// @notice Public sale active
     modifier onlyPublicSaleActive() {
@@ -63,7 +72,7 @@ contract PuzzleDrop is ERC721A, IPuzzleDrop {
                 presaleEnd: 0,
                 presaleMerkleRoot: 0x0000000000000000000000000000000000000000000000000000000000000000,
                 totalMinted: _totalMinted(),
-                maxSupply: 1000000,
+                maxSupply: type(uint256).max,
                 maxSalePurchasePerAddress: 0
             });
     }
@@ -71,5 +80,17 @@ contract PuzzleDrop is ERC721A, IPuzzleDrop {
     /// @notice Returns the starting token ID.
     function _startTokenId() internal pure override returns (uint256) {
         return 1;
+    }
+
+    /// @notice returns number of created drops.
+    function dropsCreated() public view returns (uint256) {
+        uint256 weekNumber = (block.timestamp - publicSaleStart) /
+            secondsBetweenDrops;
+        return 2 * (1 + weekNumber);
+    }
+
+    /// @notice returns number of available drops.
+    function dropsAvailable() public view returns (uint256) {
+        return _publicSaleActive() ? dropsCreated() : 0;
     }
 }
