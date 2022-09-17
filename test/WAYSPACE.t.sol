@@ -138,26 +138,38 @@ contract WayspaceTest is Test {
 
         vm.warp(block.timestamp + ws.secondsBetweenDrops() - 1);
         firstMintedTokenId = ws.purchaseBundle{value: 0.0666 ether}(2);
+        assertEq(address(ws.recipients()[0]).balance, 49950000000000000);
+        assertEq(address(ws.recipients()[1]).balance, 49950000000000000);
         assertEq(firstMintedTokenId, 3);
         assertEq(ws.songCount(1), 3);
         assertEq(ws.songCount(2), 3);
     }
 
     function testCan_purchaseLastBundle() public {
+        assertEq(address(ws.recipients()[8]).balance, 0);
+        assertEq(address(ws.recipients()[9]).balance, 0);
         vm.warp(block.timestamp + 5 * ws.secondsBetweenDrops() - 1);
         uint256 firstMintedTokenId = ws.purchaseBundle{value: 0.0999 ether}(3);
+        assertEq(address(ws.recipients()[8]).balance, 49950000000000000);
+        assertEq(address(ws.recipients()[9]).balance, 49950000000000000);
         assertEq(firstMintedTokenId, 1);
         assertEq(ws.songCount(9), 3);
         assertEq(ws.songCount(10), 3);
 
         vm.warp(block.timestamp + 1);
+        assertEq(address(ws.recipients()[10]).balance, 0);
+        assertEq(address(ws.recipients()[11]).balance, 0);
         firstMintedTokenId = ws.purchaseBundle{value: 0.0999 ether}(3);
+        assertEq(address(ws.recipients()[10]).balance, 99900000000000000);
+        assertEq(address(ws.recipients()[11]).balance, 99900000000000000);
         assertEq(firstMintedTokenId, 7);
         assertEq(ws.songCount(11), 3);
         assertEq(ws.songCount(12), 3);
 
         vm.warp(block.timestamp + 100 * ws.secondsBetweenDrops());
         firstMintedTokenId = ws.purchaseBundle{value: 0.0999 ether}(3);
+        assertEq(address(ws.recipients()[10]).balance, 199800000000000000);
+        assertEq(address(ws.recipients()[11]).balance, 199800000000000000);
         assertEq(firstMintedTokenId, 13);
         assertEq(ws.songCount(11), 6);
         assertEq(ws.songCount(12), 6);
@@ -165,26 +177,36 @@ contract WayspaceTest is Test {
 
     function testCan_purchaseMultipleBundles() public {
         ws.purchaseBundle{value: 0.0999 ether}(3);
+        assertEq(address(ws.recipients()[0]).balance, 49950000000000000);
+        assertEq(address(ws.recipients()[1]).balance, 49950000000000000);
         assertEq(ws.songCount(1), 3);
         assertEq(ws.songCount(2), 3);
 
         vm.warp(block.timestamp + ws.secondsBetweenDrops());
         ws.purchaseBundle{value: 0.0999 ether}(3);
+        assertEq(address(ws.recipients()[2]).balance, 99900000000000000);
+        assertEq(address(ws.recipients()[3]).balance, 49950000000000000);
         assertEq(ws.songCount(3), 3);
         assertEq(ws.songCount(4), 3);
 
         vm.warp(block.timestamp + ws.secondsBetweenDrops() - 1);
         ws.purchaseBundle{value: 0.0666 ether}(2);
+        assertEq(address(ws.recipients()[2]).balance, 133200000000000000);
+        assertEq(address(ws.recipients()[3]).balance, 83250000000000000);
         assertEq(ws.songCount(3), 5);
         assertEq(ws.songCount(4), 5);
 
         vm.warp(block.timestamp + ws.secondsBetweenDrops() + 1);
         ws.purchaseBundle{value: 0.0999 ether}(3);
+        assertEq(address(ws.recipients()[6]).balance, 49950000000000000);
+        assertEq(address(ws.recipients()[7]).balance, 49950000000000000);
         assertEq(ws.songCount(7), 3);
         assertEq(ws.songCount(8), 3);
 
         vm.warp(block.timestamp + ws.secondsBetweenDrops());
         ws.purchaseBundle{value: 0.0999 ether}(3);
+        assertEq(address(ws.recipients()[8]).balance, 49950000000000000);
+        assertEq(address(ws.recipients()[9]).balance, 49950000000000000);
         assertEq(ws.songCount(1), 3);
         assertEq(ws.songCount(2), 3);
         assertEq(ws.songCount(3), 5);
