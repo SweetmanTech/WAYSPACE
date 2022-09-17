@@ -45,4 +45,19 @@ contract PuzzleDropTest is Test {
         vm.warp(block.timestamp + 100 * pd.secondsBetweenDrops());
         assertEq(pd.dropsCreated(), 12);
     }
+
+    function testCan_dropsAvailable() public {
+        pd = new PuzzleDrop("WAYSPACE", "JACKIE");
+        vm.warp(block.timestamp - 1);
+        assertEq(pd.dropsAvailable(), 0);
+
+        vm.warp(pd.publicSaleStart());
+        assertEq(pd.dropsAvailable(), 2);
+
+        vm.warp(pd.publicSaleStart() + pd.secondsBetweenDrops() * 6);
+        assertEq(pd.dropsAvailable(), 12);
+
+        vm.warp(pd.publicSaleEnd());
+        assertEq(pd.dropsAvailable(), 0);
+    }
 }
