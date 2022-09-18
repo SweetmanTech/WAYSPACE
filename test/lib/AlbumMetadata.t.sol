@@ -25,6 +25,10 @@ contract Metadata is AlbumMetadata {
     function songCounts(uint8 _songId) public view returns (uint256) {
         return songCount[_songId];
     }
+
+    function updateMetadataRenderer(uint8 _latestSong) public {
+        _updateMetadataRenderer(_latestSong);
+    }
 }
 
 contract AlbumMetadataTest is Test {
@@ -68,5 +72,30 @@ contract AlbumMetadataTest is Test {
 
     function testCan_setZoraDropMetadataRenderer() public {
         assertEq(metadata.metadataRenderer(), address(dmr));
+    }
+
+    function testCan_setContractURI() public {
+        vm.prank(address(metadata));
+        assertEq(
+            dmr.contractURI(),
+            "ipfs://bafkreiecagxjavt3mjmbfptngwjsqfcwvvdp4mnex4ge5rj5gug2ayazki"
+        );
+        assertEq(
+            metadata.contractURI(),
+            "ipfs://bafkreiecagxjavt3mjmbfptngwjsqfcwvvdp4mnex4ge5rj5gug2ayazki"
+        );
+    }
+
+    function testCan_updateMetadataURI() public {
+        metadata.updateMetadataRenderer(3);
+        vm.prank(address(metadata));
+        assertEq(
+            dmr.contractURI(),
+            "ipfs://bafkreiecagxjavt3mjmbfptngwjsqfcwvvdp4mnex4ge5rj5gug2ayazki"
+        );
+        assertEq(
+            metadata.contractURI(),
+            "ipfs://bafkreiecagxjavt3mjmbfptngwjsqfcwvvdp4mnex4ge5rj5gug2ayazki"
+        );
     }
 }
