@@ -92,54 +92,51 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits {
         return songURI(songId);
     }
 
-    /**
-     * @dev Hook that is called after a set of serially-ordered token IDs
-     * have been transferred. This includes minting.
-     * And also called after one token has been burned.
-     *
-     * `startTokenId` - the first token ID to be transferred.
-     * `quantity` - the amount to be transferred.
-     *
-     * Calling conditions:
-     *
-     * - When `from` and `to` are both non-zero, `from`'s `tokenId` has been
-     * transferred to `to`.
-     * - When `from` is zero, `tokenId` has been minted for `to`.
-     * - When `to` is zero, `tokenId` has been burned by `from`.
-     * - `from` and `to` are never both zero.
-     */
-    function _afterTokenTransfers(
-        address,
-        address,
-        uint256,
-        uint256
-    ) internal override {
-        uint256[] memory _ownedTokens = tokensOfOwner(msg.sender);
-        if (puzzleCompleted(_ownedTokens) && !ownsSongId(_ownedTokens, 13)) {
-            _airdropFullAlbum();
-        }
-    }
-
-    /// @notice returns if caller has completed the Wayspace puzzle.
-    function puzzleCompleted(uint256[] memory _ownedTokens)
-        public
-        view
-        returns (bool)
-    {
-        if (_ownedTokens.length < 12) return false;
+    /// @notice returns missing pieces in the Wayspace puzzle.
+    function missingPieces() public view returns (string memory) {
+        string memory _missingTokens;
         for (uint8 _songId = 1; _songId <= 12; ) {
-            if (!ownsSongId(_ownedTokens, _songId)) return false;
+            if (!ownsSongId(_songId)) {
+                _missingTokens = string(
+                    abi.encodePacked(_missingTokens, ",", _songId)
+                );
+            }
             unchecked {
                 ++_songId;
             }
         }
-        return true;
+        return _missingTokens;
+    }
+
+    /// @notice returns if caller has completed the Wayspace puzzle.
+    function puzzleCompleted() external {
+        string memory _missingPieces = missingPieces();
+        require(bytes(_missingPieces).length == 0, "Missing Pieces.");
+        _airdropFullAlbum();
+    }
+
+    /// @notice returns if caller already owns Wayspace [Full Album with Lyrics].
+    function ownsSongId(uint8 _songId) public view returns (bool) {
+        uint256[] memory _ownedTokens = tokensOfOwner(msg.sender);
+
+        for (uint256 i = 0; i < _ownedTokens.length; ) {
+            uint8 songId = songIds[_ownedTokens[i]];
+
+            if (songId == _songId) {
+                return true;
+            }
+            unchecked {
+                ++i;
+            }
+        }
+        return false;
     }
 
     /// @notice airdrops the full album
     function _airdropFullAlbum() internal {
-        uint256 start = _nextTokenId();
-        _setSongURI(start, 1, 13);
+        _setSongURI(_nextTokenId(), 1, 13);
+        _mint(msg.sender, 1);
+        _setSongURI(_nextTokenId(), 1, 14);
         _mint(msg.sender, 1);
     }
 }

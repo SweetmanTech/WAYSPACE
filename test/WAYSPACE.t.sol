@@ -296,38 +296,41 @@ contract WayspaceTest is Test {
     /// -----------------------------------------------------------------------
     function testCan_puzzleCompleted() public {
         vm.warp(ws.publicSaleEnd() - 1);
-        assertFalse(ws.puzzleCompleted(ws.tokensOfOwner(address(this))));
+        vm.expectRevert("Missing Pieces.");
+        ws.puzzleCompleted();
         for (uint8 i = 1; i <= 12; i++) {
             ws.purchaseTrack{value: 0.0222 ether}(1, i);
             assertEq(ws.songCount(i), 1);
         }
-        assertTrue(ws.puzzleCompleted(ws.tokensOfOwner(address(this))));
+        assertEq(ws.songCount(13), 0);
+        assertEq(ws.songCount(14), 0);
+        ws.puzzleCompleted();
+        assertEq(ws.songCount(13), 1);
+        assertEq(ws.songCount(14), 1);
     }
 
     function testCan_ownsFullAlbum() public {
         vm.warp(ws.publicSaleEnd() - 1);
-        assertFalse(ws.ownsSongId(ws.tokensOfOwner(address(this)), 13));
+        assertFalse(ws.ownsSongId(13));
         for (uint8 i = 1; i <= 12; i++) {
             ws.purchaseTrack{value: 0.0222 ether}(1, i);
             assertEq(ws.songCount(i), 1);
         }
 
-        uint256[] memory _ownedTokens = ws.tokensOfOwner(address(this));
         for (uint8 i = 1; i <= 12; i++) {
-            assertTrue(ws.ownsSongId(_ownedTokens, i));
+            assertTrue(ws.ownsSongId(i));
         }
     }
 
-    function testCan_airdrop() public {
+    function testCan_puzzleComplete() public {
         vm.warp(ws.publicSaleEnd() - 1);
-        assertFalse(ws.ownsSongId(ws.tokensOfOwner(address(this)), 13));
+        assertFalse(ws.ownsSongId(13));
         for (uint8 i = 1; i <= 12; i++) {
             ws.purchaseTrack{value: 0.0222 ether}(1, i);
             assertEq(ws.songCount(i), 1);
         }
 
-        uint256[] memory _ownedTokens = ws.tokensOfOwner(address(this));
-        assertTrue(ws.puzzleCompleted(_ownedTokens));
-        assertFalse(ws.ownsSongId(_ownedTokens, 13));
+        ws.puzzleCompleted();
+        assertTrue(ws.ownsSongId(13));
     }
 }
