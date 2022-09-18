@@ -115,11 +115,25 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits {
         uint256
     ) internal override {
         uint256[] memory _ownedTokens = tokensOfOwner(msg.sender);
-        if (_ownedTokens.length >= 12) {
-            if (puzzleCompleted(_ownedTokens) && !ownsFullAlbum(_ownedTokens)) {
-                _airdropFullAlbum();
+        if (puzzleCompleted(_ownedTokens) && !ownsSongId(_ownedTokens, 13)) {
+            _airdropFullAlbum();
+        }
+    }
+
+    /// @notice returns if caller has completed the Wayspace puzzle.
+    function puzzleCompleted(uint256[] memory _ownedTokens)
+        public
+        view
+        returns (bool)
+    {
+        if (_ownedTokens.length < 12) return false;
+        for (uint8 _songId = 1; _songId <= 12; ) {
+            if (!ownsSongId(_ownedTokens, _songId)) return false;
+            unchecked {
+                ++_songId;
             }
         }
+        return true;
     }
 
     /// @notice airdrops the full album

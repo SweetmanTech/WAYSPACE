@@ -84,7 +84,7 @@ contract AlbumMetadata {
     }
 
     /// @notice returns if caller already owns Wayspace [Full Album with Lyrics].
-    function ownsFullAlbum(uint256[] memory _ownedTokens)
+    function ownsSongId(uint256[] memory _ownedTokens, uint8 _songId)
         public
         view
         returns (bool)
@@ -92,7 +92,7 @@ contract AlbumMetadata {
         for (uint256 i = 0; i < _ownedTokens.length; ) {
             uint8 songId = songIds[_ownedTokens[i]];
 
-            if (songId == 13) {
+            if (songId == _songId) {
                 return true;
             }
             unchecked {

@@ -109,15 +109,6 @@ contract PuzzleDrop is ERC721AQueryable, IPuzzleDrop {
         return isMaxWeek ? 12 : 2 * uint8(weekNumber());
     }
 
-    /// @notice returns if caller has completed the Wayspace puzzle.
-    function puzzleCompleted(uint256[] memory _ownedTokens)
-        public
-        pure
-        returns (bool)
-    {
-        return _ownedTokens.length >= 12;
-    }
-
     /**
      * @dev Returns an array of token IDs owned by `owner`.
      *
