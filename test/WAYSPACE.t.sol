@@ -335,14 +335,14 @@ contract WayspaceTest is Test {
 
     function testCan_ownsFullAlbum() public {
         vm.warp(ws.publicSaleEnd() - 1);
-        assertFalse(ws.ownsSongId(13));
+        assertFalse(ws.ownsTrackNumber(address(this), 13));
         for (uint8 i = 1; i <= 12; i++) {
             ws.purchaseTrack{value: 0.0222 ether}(1, i);
             assertEq(ws.songCount(i), 1);
         }
 
         for (uint8 i = 1; i <= 12; i++) {
-            assertTrue(ws.ownsSongId(i));
+            assertTrue(ws.ownsTrackNumber(address(this), i));
         }
     }
 
@@ -350,7 +350,7 @@ contract WayspaceTest is Test {
     /// missing pieces testing
     /// -----------------------------------------------------------------------
     function testCan_missingAllPieces() public {
-        string memory missingPieces = ws.missingPieces();
+        string memory missingPieces = ws.missingPieces(msg.sender);
         assertTrue(bytes(missingPieces).length > 0);
         assertEq(missingPieces, "1,2,3,4,5,6,7,8,9,10,11,12");
     }
@@ -360,7 +360,7 @@ contract WayspaceTest is Test {
         for (uint8 i = 1; i <= 11; i++) {
             ws.purchaseTrack{value: 0.0222 ether}(1, i);
         }
-        string memory missingPieces = ws.missingPieces();
+        string memory missingPieces = ws.missingPieces(address(this));
         assertEq(missingPieces, "12");
     }
 
@@ -371,7 +371,7 @@ contract WayspaceTest is Test {
                 ws.purchaseTrack{value: 0.0222 ether}(1, i);
             }
         }
-        string memory missingPieces = ws.missingPieces();
+        string memory missingPieces = ws.missingPieces(address(this));
         assertEq(missingPieces, "3,7");
     }
 }

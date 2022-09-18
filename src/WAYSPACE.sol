@@ -95,10 +95,10 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits {
     }
 
     /// @notice returns missing pieces in the Wayspace puzzle.
-    function missingPieces() public view returns (string memory) {
+    function missingPieces(address _owner) public view returns (string memory) {
         string memory _missingTokens;
         for (uint8 _songId = 1; _songId <= 12; ) {
-            if (!ownsSongId(_songId)) {
+            if (!ownsTrackNumber(_owner, _songId)) {
                 _missingTokens = string(
                     abi.encodePacked(
                         _missingTokens,
@@ -116,14 +116,18 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits {
 
     /// @notice returns if caller has completed the Wayspace puzzle.
     function puzzleCompleted() external {
-        string memory _missingPieces = missingPieces();
+        string memory _missingPieces = missingPieces(msg.sender);
         require(bytes(_missingPieces).length == 0, "Missing Pieces.");
         _airdropFullAlbum();
     }
 
     /// @notice returns if caller already owns Wayspace [Full Album with Lyrics].
-    function ownsSongId(uint8 _songId) public view returns (bool) {
-        uint256[] memory _ownedTokens = tokensOfOwner(msg.sender);
+    function ownsTrackNumber(address _holder, uint8 _songId)
+        public
+        view
+        returns (bool)
+    {
+        uint256[] memory _ownedTokens = tokensOfOwner(_holder);
 
         for (uint256 i = 0; i < _ownedTokens.length; ) {
             uint8 songId = songIds[_ownedTokens[i]];
