@@ -83,12 +83,68 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits {
         public
         view
         virtual
-        override
+        override(IERC721A, ERC721A)
         returns (string memory)
     {
         if (!_exists(tokenId)) revert URIQueryForNonexistentToken();
 
         uint8 songId = songIds[tokenId];
         return songURI(songId);
+    }
+
+    /// @notice returns if caller already owns Wayspace [Full Album with Lyrics].
+    function ownsFullAlbum(uint256[] memory _ownedTokens)
+        public
+        view
+        returns (bool)
+    {
+        for (uint256 i = 0; i < _ownedTokens.length; ) {
+            uint8 songId = songIds[_ownedTokens[i]];
+
+            if (songId == 13) {
+                return true;
+            }
+            unchecked {
+                ++i;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @dev Hook that is called after a set of serially-ordered token IDs
+     * have been transferred. This includes minting.
+     * And also called after one token has been burned.
+     *
+     * `startTokenId` - the first token ID to be transferred.
+     * `quantity` - the amount to be transferred.
+     *
+     * Calling conditions:
+     *
+     * - When `from` and `to` are both non-zero, `from`'s `tokenId` has been
+     * transferred to `to`.
+     * - When `from` is zero, `tokenId` has been minted for `to`.
+     * - When `to` is zero, `tokenId` has been burned by `from`.
+     * - `from` and `to` are never both zero.
+     */
+    function _afterTokenTransfers(
+        address,
+        address,
+        uint256,
+        uint256
+    ) internal override {
+        uint256[] memory _ownedTokens = tokensOfOwner(msg.sender);
+        if (_ownedTokens.length >= 12) {
+            if (puzzleCompleted(_ownedTokens) && !ownsFullAlbum(_ownedTokens)) {
+                _airdropFullAlbum();
+            }
+        }
+    }
+
+    /// @notice airdrops the full album
+    function _airdropFullAlbum() internal {
+        uint256 start = _nextTokenId();
+        _setSongURI(start, 1, 13);
+        _mint(msg.sender, 1);
     }
 }

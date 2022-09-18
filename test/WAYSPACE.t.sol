@@ -238,12 +238,13 @@ contract WayspaceTest is Test {
         assertEq(firstMintedTokenId, 7);
         assertEq(ws.songCount(11), 3);
         assertEq(ws.songCount(12), 3);
+        assertEq(ws.songCount(13), 1);
 
         vm.warp(block.timestamp + 100 * ws.secondsBetweenDrops());
         firstMintedTokenId = ws.purchaseBundle{value: 0.0999 ether}(3);
         assertEq(address(ws.recipients()[10]).balance, 199800000000000000);
         assertEq(address(ws.recipients()[11]).balance, 199800000000000000);
-        assertEq(firstMintedTokenId, 13);
+        assertEq(firstMintedTokenId, 14);
         assertEq(ws.songCount(11), 6);
         assertEq(ws.songCount(12), 6);
     }
@@ -288,5 +289,31 @@ contract WayspaceTest is Test {
         assertEq(ws.songCount(6), 0);
         assertEq(ws.songCount(7), 3);
         assertEq(ws.songCount(8), 3);
+    }
+
+    /// -----------------------------------------------------------------------
+    /// airdrop testing
+    /// -----------------------------------------------------------------------
+    function testCan_ownsFullAlbum() public {
+        vm.warp(ws.publicSaleEnd() - 1);
+        assertFalse(ws.ownsFullAlbum(ws.tokensOfOwner(address(this))));
+        for (uint8 i = 1; i <= 12; i++) {
+            ws.purchaseTrack{value: 0.0222 ether}(1, i);
+            assertEq(ws.songCount(i), 1);
+        }
+
+        assertTrue(ws.ownsFullAlbum(ws.tokensOfOwner(address(this))));
+        assertEq(ws.songCount(13), 1);
+    }
+
+    function testCan_puzzleCompleted() public {
+        vm.warp(ws.publicSaleEnd() - 1);
+        assertFalse(ws.puzzleCompleted(ws.tokensOfOwner(address(this))));
+        for (uint8 i = 1; i <= 12; i++) {
+            ws.purchaseTrack{value: 0.0222 ether}(1, i);
+            assertEq(ws.songCount(i), 1);
+        }
+        assertEq(ws.tokensOfOwner(address(this)).length, 13);
+        assertTrue(ws.puzzleCompleted(ws.tokensOfOwner(address(this))));
     }
 }
