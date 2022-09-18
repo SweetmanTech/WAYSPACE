@@ -296,9 +296,9 @@ contract WayspaceTest is Test {
     /// -----------------------------------------------------------------------
     function testCan_puzzleCompleted() public {
         vm.warp(ws.publicSaleEnd() - 1);
-        vm.expectRevert("Missing Pieces.");
-        ws.puzzleCompleted();
         for (uint8 i = 1; i <= 12; i++) {
+            vm.expectRevert("Missing Pieces.");
+            ws.puzzleCompleted();
             ws.purchaseTrack{value: 0.0222 ether}(1, i);
             assertEq(ws.songCount(i), 1);
         }
@@ -320,17 +320,5 @@ contract WayspaceTest is Test {
         for (uint8 i = 1; i <= 12; i++) {
             assertTrue(ws.ownsSongId(i));
         }
-    }
-
-    function testCan_puzzleComplete() public {
-        vm.warp(ws.publicSaleEnd() - 1);
-        assertFalse(ws.ownsSongId(13));
-        for (uint8 i = 1; i <= 12; i++) {
-            ws.purchaseTrack{value: 0.0222 ether}(1, i);
-            assertEq(ws.songCount(i), 1);
-        }
-
-        ws.puzzleCompleted();
-        assertTrue(ws.ownsSongId(13));
     }
 }
