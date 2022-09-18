@@ -92,25 +92,6 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits {
         return songURI(songId);
     }
 
-    /// @notice returns if caller already owns Wayspace [Full Album with Lyrics].
-    function ownsFullAlbum(uint256[] memory _ownedTokens)
-        public
-        view
-        returns (bool)
-    {
-        for (uint256 i = 0; i < _ownedTokens.length; ) {
-            uint8 songId = songIds[_ownedTokens[i]];
-
-            if (songId == 13) {
-                return true;
-            }
-            unchecked {
-                ++i;
-            }
-        }
-        return false;
-    }
-
     /**
      * @dev Hook that is called after a set of serially-ordered token IDs
      * have been transferred. This includes minting.
