@@ -5,6 +5,7 @@ import "./lib/PuzzleDrop.sol";
 import "./lib/AlbumMetadata.sol";
 import "./lib/TeamSplits.sol";
 import "./interfaces/IMetadataRenderer.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits {
     constructor(string[] memory _musicMetadata, address _dropMetadataRenderer)
@@ -99,7 +100,11 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits {
         for (uint8 _songId = 1; _songId <= 12; ) {
             if (!ownsSongId(_songId)) {
                 _missingTokens = string(
-                    abi.encodePacked(_missingTokens, ",", _songId)
+                    abi.encodePacked(
+                        _missingTokens,
+                        bytes(_missingTokens).length > 0 ? "," : "",
+                        Strings.toString(_songId)
+                    )
                 );
             }
             unchecked {

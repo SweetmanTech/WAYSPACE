@@ -345,4 +345,13 @@ contract WayspaceTest is Test {
             assertTrue(ws.ownsSongId(i));
         }
     }
+
+    /// -----------------------------------------------------------------------
+    /// missing pieces testing
+    /// -----------------------------------------------------------------------
+    function testCan_missingPieces() public {
+        string memory missingPieces = ws.missingPieces();
+        assertTrue(bytes(missingPieces).length > 0);
+        assertEq(missingPieces, "1,2,3,4,5,6,7,8,9,10,11,12");
+    }
 }
