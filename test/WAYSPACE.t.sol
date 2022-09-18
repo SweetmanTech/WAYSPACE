@@ -349,9 +349,29 @@ contract WayspaceTest is Test {
     /// -----------------------------------------------------------------------
     /// missing pieces testing
     /// -----------------------------------------------------------------------
-    function testCan_missingPieces() public {
+    function testCan_missingAllPieces() public {
         string memory missingPieces = ws.missingPieces();
         assertTrue(bytes(missingPieces).length > 0);
         assertEq(missingPieces, "1,2,3,4,5,6,7,8,9,10,11,12");
+    }
+
+    function testCan_missingLastPiece() public {
+        vm.warp(ws.publicSaleEnd() - 1);
+        for (uint8 i = 1; i <= 11; i++) {
+            ws.purchaseTrack{value: 0.0222 ether}(1, i);
+        }
+        string memory missingPieces = ws.missingPieces();
+        assertEq(missingPieces, "12");
+    }
+
+    function testCan_missingMiddlePieces() public {
+        vm.warp(ws.publicSaleEnd() - 1);
+        for (uint8 i = 1; i <= 12; i++) {
+            if (i != 3 && i != 7) {
+                ws.purchaseTrack{value: 0.0222 ether}(1, i);
+            }
+        }
+        string memory missingPieces = ws.missingPieces();
+        assertEq(missingPieces, "3,7");
     }
 }
