@@ -68,7 +68,7 @@ contract AlbumMetadata {
     }
 
     /// @notice updates zora metadata renderer to latest version
-    function updateMetadataRenderer(uint8 _latestSong) internal {
+    function _updateMetadataRenderer(uint8 _latestSong) internal {
         string memory base = zoraDropMetadataRenderer.tokenURI(1);
         if (
             keccak256(abi.encodePacked(base)) !=
