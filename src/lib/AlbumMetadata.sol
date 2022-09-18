@@ -12,16 +12,15 @@ contract AlbumMetadata {
     mapping(uint8 => uint256) public songCount;
     /// @notice Zora Drops Metadata Renderer
     IMetadataRenderer immutable zoraDropMetadataRenderer;
+    /// @notice contract metadata
+    string constant contractMetadata =
+        "ipfs://bafkreiecagxjavt3mjmbfptngwjsqfcwvvdp4mnex4ge5rj5gug2ayazki";
 
     constructor(address _dropMetadataRenderer, string[] memory _musicMetadata) {
         setupAlbumMetadata(_musicMetadata);
         zoraDropMetadataRenderer = IMetadataRenderer(_dropMetadataRenderer);
         string memory initialBaseURI = _musicMetadata[1];
-        string memory initialContractURI = _musicMetadata[1];
-        bytes memory initialData = abi.encode(
-            initialBaseURI,
-            initialContractURI
-        );
+        bytes memory initialData = abi.encode(initialBaseURI, contractMetadata);
         zoraDropMetadataRenderer.initializeWithData(initialData);
     }
 
@@ -78,9 +77,14 @@ contract AlbumMetadata {
             zoraDropMetadataRenderer.updateMetadataBase(
                 address(this),
                 songURI(_latestSong),
-                songURI(_latestSong)
+                contractMetadata
             );
         }
+    }
+
+    /// @notice contract metadata (for OpenSea)
+    function contractURI() external view returns (string memory) {
+        return zoraDropMetadataRenderer.contractURI();
     }
 
     /// @notice returns if caller already owns Wayspace [Full Album with Lyrics].
