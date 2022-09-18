@@ -180,6 +180,30 @@ contract WayspaceTest is Test {
         assertEq(dmrMetadata, wsMetadata);
     }
 
+    function testCan_updateMetadataRendererTokenURIToSecondDropWithBundle()
+        public
+    {
+        vm.warp(block.timestamp + ws.secondsBetweenDrops());
+        ws.purchaseBundle{value: 0.0333 ether}(1);
+        vm.prank(address(ws));
+        string memory dmrMetadata = dmr.tokenURI(1);
+        string memory wsMetadata = string(abi.encodePacked(ws.songURI(4), "1"));
+        assertEq(dmrMetadata, wsMetadata);
+    }
+
+    function testCan_updateMetadataRendererTokenURIToFinalDropWithBundle()
+        public
+    {
+        vm.warp(ws.publicSaleEnd() - 1);
+        ws.purchaseBundle{value: 0.0333 ether}(1);
+        vm.prank(address(ws));
+        string memory dmrMetadata = dmr.tokenURI(1);
+        string memory wsMetadata = string(
+            abi.encodePacked(ws.songURI(12), "1")
+        );
+        assertEq(dmrMetadata, wsMetadata);
+    }
+
     /// -----------------------------------------------------------------------
     /// bundle testing
     /// -----------------------------------------------------------------------

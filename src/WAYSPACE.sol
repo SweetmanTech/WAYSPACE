@@ -55,6 +55,7 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits {
         _purchase(_quantity, songIdTwo);
         _paySplit(songIdOne, address(this).balance / 2);
         _paySplit(songIdTwo, address(this).balance);
+        _updateMetadataRenderer(dropsCreated());
         return firstMintedTokenId;
     }
 
