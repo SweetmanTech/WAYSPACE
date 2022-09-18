@@ -12,7 +12,7 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits {
         AlbumMetadata(_dropMetadataRenderer, _musicMetadata)
     {}
 
-    /// @notice This allows the user to purchase a edition edition
+    /// @notice This allows the user to purchase the latest drop
     /// at the given price in the contract.
     function purchase(uint256 _quantity)
         external
@@ -21,9 +21,22 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits {
         onlyValidPrice(singlePrice, _quantity)
         returns (uint256)
     {
-        uint256 firstMintedTokenId = _purchase(_quantity, dropsCreated());
+        return purchaseTrack(_quantity, dropsCreated());
+    }
+
+    /// @notice This allows the user to purchase a specific drop
+    /// at the given price in the contract.
+    function purchaseTrack(uint256 _quantity, uint8 _trackNumber)
+        public
+        payable
+        onlyPublicSaleActive
+        onlyValidPrice(singlePrice, _quantity)
+        onlyTrackSaleActive(_trackNumber)
+        returns (uint256)
+    {
+        uint256 firstMintedTokenId = _purchase(_quantity, _trackNumber);
         updateMetadataRenderer(dropsCreated());
-        _paySplit(dropsCreated(), address(this).balance);
+        _paySplit(_trackNumber, address(this).balance);
         return firstMintedTokenId;
     }
 

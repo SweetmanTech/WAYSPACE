@@ -20,6 +20,8 @@ contract PuzzleDrop is ERC721A, IPuzzleDrop {
     error Sale_Inactive();
     /// @notice Wrong price for purchase
     error Purchase_WrongPrice(uint256 correctPrice);
+    /// @notice Track Sale is inactive
+    error Track_Sale_Inactive();
 
     constructor(string memory _name, string memory _symbol)
         ERC721A(_name, _symbol)
@@ -55,6 +57,20 @@ contract PuzzleDrop is ERC721A, IPuzzleDrop {
         return
             publicSaleStart <= block.timestamp &&
             publicSaleEnd > block.timestamp;
+    }
+
+    /// @notice Track sale active
+    modifier onlyTrackSaleActive(uint8 _trackNumber) {
+        if (!_trackSaleActive(_trackNumber)) {
+            revert Track_Sale_Inactive();
+        }
+
+        _;
+    }
+
+    /// @notice Track sale active
+    function _trackSaleActive(uint8 _trackNumber) internal view returns (bool) {
+        return _trackNumber > 0 && _trackNumber <= dropsCreated();
     }
 
     /// @notice Sale details

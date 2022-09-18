@@ -79,6 +79,70 @@ contract WayspaceTest is Test {
         assertEq(ws.songCount(12), 8);
     }
 
+    /// -----------------------------------------------------------------------
+    /// purchase track testing
+    /// -----------------------------------------------------------------------
+    function testFail_blockPurchaseTrackPresale() public {
+        vm.warp(ws.publicSaleStart() - 1);
+        ws.purchaseTrack{value: 0.0222 ether}(1, 1);
+    }
+
+    function testFail_blockPurchaseTrackPostSale() public {
+        vm.warp(ws.publicSaleEnd());
+        ws.purchaseTrack{value: 0.0222 ether}(1, 1);
+    }
+
+    function testFail_blockPurchaseTrackWrongPrice() public {
+        ws.purchaseTrack{value: 0.0221 ether}(1, 1);
+        ws.purchaseTrack{value: 0.0223 ether}(1, 1);
+    }
+
+    function testFail_blockPurchaseTrackZero() public {
+        ws.purchaseTrack{value: 0.0221 ether}(1, 0);
+    }
+
+    function testFail_blockPurchaseTrackSaleInactive() public {
+        ws.purchaseTrack{value: 0.0222 ether}(1, 3);
+    }
+
+    function testCan_purchaseTrack() public {
+        assertEq(address(ws.recipients()[0]).balance, 0);
+        uint256 firstMintedTokenId = ws.purchaseTrack{value: 0.0222 ether}(
+            1,
+            1
+        );
+        assertEq(firstMintedTokenId, 1);
+        firstMintedTokenId = ws.purchaseTrack{value: 0.0444 ether}(2, 2);
+        assertEq(firstMintedTokenId, 2);
+
+        assertEq(address(ws.recipients()[0]).balance, 22200000000000000);
+        assertEq(address(ws.recipients()[1]).balance, 44400000000000000);
+
+        assertEq(ws.songCount(1), 1);
+        assertEq(ws.songCount(2), 2);
+    }
+
+    function testCan_purchaseTrack12() public {
+        vm.warp(block.timestamp + 5 * ws.secondsBetweenDrops());
+        assertEq(address(ws.recipients()[11]).balance, 0);
+        uint256 firstMintedTokenId = ws.purchaseTrack{value: 0.0888 ether}(
+            4,
+            12
+        );
+        assertEq(address(ws.recipients()[11]).balance, 88800000000000000);
+        assertEq(firstMintedTokenId, 1);
+        assertEq(ws.songCount(12), 4);
+
+        vm.warp(block.timestamp + 100 * ws.secondsBetweenDrops());
+        firstMintedTokenId = ws.purchaseTrack{value: 0.0888 ether}(4, 12);
+        assertEq(address(ws.recipients()[11]).balance, 177600000000000000);
+        assertEq(firstMintedTokenId, 5);
+        assertEq(ws.songCount(12), 8);
+    }
+
+    /// -----------------------------------------------------------------------
+    /// metadata renderer testing
+    /// -----------------------------------------------------------------------
     function testCan_getMetadataRendererTokenURI() public {
         ws.purchase{value: 0.0888 ether}(4);
         vm.prank(address(ws));
