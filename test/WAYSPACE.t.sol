@@ -140,6 +140,15 @@ contract WayspaceTest is Test {
         assertEq(ws.songCount(12), 8);
     }
 
+    function testCan_purchaseAllTracks() public {
+        vm.warp(ws.publicSaleEnd() - 1);
+
+        for (uint8 i = 1; i <= 12; i++) {
+            ws.purchaseTrack{value: 0.0222 ether}(1, i);
+            assertEq(ws.songCount(i), 1);
+        }
+    }
+
     /// -----------------------------------------------------------------------
     /// metadata renderer testing
     /// -----------------------------------------------------------------------
