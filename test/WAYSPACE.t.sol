@@ -8,6 +8,7 @@ import "src/lib/ZoraDropMetadataRenderer/DropMetadataRenderer.sol";
 contract WayspaceTest is Test {
     WAYSPACE ws;
     DropMetadataRenderer dmr;
+    address[] _recipients = new address[](3);
 
     function setUp() public {
         dmr = new DropMetadataRenderer();
@@ -18,6 +19,9 @@ contract WayspaceTest is Test {
             );
         }
         ws = new WAYSPACE(_musicMetadata, address(dmr));
+        for (uint32 i = 0; i < _recipients.length; i++) {
+            _recipients[i] = address(1);
+        }
     }
 
     /// -----------------------------------------------------------------------
@@ -373,5 +377,38 @@ contract WayspaceTest is Test {
         }
         string memory missingPieces = ws.missingPieces(address(this));
         assertEq(missingPieces, "3,7");
+    }
+
+    /// -----------------------------------------------------------------------
+    /// ownable testing
+    /// -----------------------------------------------------------------------
+    function testCan_findOwner() public {
+        assertEq(ws.owner(), address(this));
+    }
+
+    function testFail_nonOwnerAirdrop() public {
+        vm.prank(address(1));
+        ws.adminAirdropPuzzle(_recipients);
+    }
+
+    function testCan_airdropPuzzle() public {
+        assertEq(ws.balanceOf(address(1)), 0);
+
+        ws.adminAirdropPuzzle(_recipients);
+        for (uint32 i = 0; i < _recipients.length; i++) {
+            assertEq(ws.ownerOf(i + 1), address(1));
+        }
+        assertEq(ws.balanceOf(address(1)), 6);
+    }
+
+    function testCan_airdropPuzzleAfterOwnershipTransferred() public {
+        vm.prank(address(2));
+        vm.expectRevert("Ownable: caller is not the owner");
+        ws.adminAirdropPuzzle(_recipients);
+
+        ws.transferOwnership(address(2));
+        vm.prank(address(2));
+        ws.adminAirdropPuzzle(_recipients);
+        assertEq(ws.balanceOf(address(1)), 6);
     }
 }

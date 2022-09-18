@@ -6,11 +6,13 @@ import "./lib/AlbumMetadata.sol";
 import "./lib/TeamSplits.sol";
 import "./interfaces/IMetadataRenderer.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits {
+contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits, Ownable {
     constructor(string[] memory _musicMetadata, address _dropMetadataRenderer)
         PuzzleDrop("WAYSPACE", "JACKIE")
         AlbumMetadata(_dropMetadataRenderer, _musicMetadata)
+        Ownable()
     {}
 
     /// @notice This allows the user to purchase the latest drop
@@ -118,7 +120,7 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits {
     function puzzleCompleted() external {
         string memory _missingPieces = missingPieces(msg.sender);
         require(bytes(_missingPieces).length == 0, "Missing Pieces.");
-        _airdropFullAlbum();
+        _airdropPuzzle(msg.sender);
     }
 
     /// @notice returns if caller already owns Wayspace [Full Album with Lyrics].
@@ -142,11 +144,31 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits {
         return false;
     }
 
-    /// @notice airdrops the full album
-    function _airdropFullAlbum() internal {
+    /// @notice airdrops the completed puzzle
+    function adminAirdropPuzzle(address[] calldata recipients)
+        external
+        onlyOwner
+        onlyPublicSaleActive
+    {
+        uint256 atId = _nextTokenId();
+        uint256 startAt = atId;
+
+        unchecked {
+            for (
+                uint256 endAt = atId + recipients.length;
+                atId < endAt;
+                atId++
+            ) {
+                _airdropPuzzle(recipients[atId - startAt]);
+            }
+        }
+    }
+
+    /// @notice airdrops the completed puzzle
+    function _airdropPuzzle(address _to) internal {
         _setSongURI(_nextTokenId(), 1, 13);
-        _mint(msg.sender, 1);
+        _mint(_to, 1);
         _setSongURI(_nextTokenId(), 1, 14);
-        _mint(msg.sender, 1);
+        _mint(_to, 1);
     }
 }

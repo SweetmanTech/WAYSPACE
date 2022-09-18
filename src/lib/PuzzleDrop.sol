@@ -31,7 +31,7 @@ contract PuzzleDrop is ERC721AQueryable, IPuzzleDrop {
         /// @dev Ends on Halloween - October 31 2022 - 23:59:59PM ET
         publicSaleEnd = 1667275199;
         /// @dev 1 week between drops live & 3 minutes in testing
-        secondsBetweenDrops = block.chainid == 1 ? 604800 : 180;
+        secondsBetweenDrops = block.chainid == 1 ? 604800 : 60;
     }
 
     /// @notice Public sale active
