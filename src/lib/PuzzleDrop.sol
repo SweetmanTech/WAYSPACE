@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import "erc721a/contracts/ERC721A.sol";
+import "erc721a/contracts/extensions/ERC721AQueryable.sol";
 import "../interfaces/IPuzzleDrop.sol";
 
-contract PuzzleDrop is ERC721A, IPuzzleDrop {
+contract PuzzleDrop is ERC721AQueryable, IPuzzleDrop {
     /// @notice Price for Single
     uint256 public singlePrice = 22200000000000000;
     /// @notice Price for Bundle
@@ -107,5 +107,48 @@ contract PuzzleDrop is ERC721A, IPuzzleDrop {
     function dropsCreated() public view returns (uint8) {
         bool isMaxWeek = weekNumber() >= 6;
         return isMaxWeek ? 12 : 2 * uint8(weekNumber());
+    }
+
+    /**
+     * @dev Returns an array of token IDs owned by `owner`.
+     *
+     * This function scans the ownership mapping and is O(`totalSupply`) in complexity.
+     * It is meant to be called off-chain.
+     *
+     * See {ERC721AQueryable-tokensOfOwnerIn} for splitting the scan into
+     * multiple smaller scans if the collection is large enough to cause
+     * an out-of-gas error (10K collections should be fine).
+     */
+    function tokensOfOwner(address owner)
+        public
+        view
+        virtual
+        override
+        returns (uint256[] memory)
+    {
+        unchecked {
+            uint256 tokenIdsIdx;
+            address currOwnershipAddr;
+            uint256 tokenIdsLength = balanceOf(owner);
+            uint256[] memory tokenIds = new uint256[](tokenIdsLength);
+            TokenOwnership memory ownership;
+            for (
+                uint256 i = _startTokenId();
+                tokenIdsIdx != tokenIdsLength;
+                ++i
+            ) {
+                ownership = _ownershipAt(i);
+                if (ownership.burned) {
+                    continue;
+                }
+                if (ownership.addr != address(0)) {
+                    currOwnershipAddr = ownership.addr;
+                }
+                if (currOwnershipAddr == owner) {
+                    tokenIds[tokenIdsIdx++] = i;
+                }
+            }
+            return tokenIds;
+        }
     }
 }

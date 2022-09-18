@@ -82,4 +82,23 @@ contract AlbumMetadata {
             );
         }
     }
+
+    /// @notice returns if caller already owns Wayspace [Full Album with Lyrics].
+    function ownsSongId(uint256[] memory _ownedTokens, uint8 _songId)
+        public
+        view
+        returns (bool)
+    {
+        for (uint256 i = 0; i < _ownedTokens.length; ) {
+            uint8 songId = songIds[_ownedTokens[i]];
+
+            if (songId == _songId) {
+                return true;
+            }
+            unchecked {
+                ++i;
+            }
+        }
+        return false;
+    }
 }
