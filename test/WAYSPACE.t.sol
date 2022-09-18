@@ -180,6 +180,30 @@ contract WayspaceTest is Test {
         assertEq(dmrMetadata, wsMetadata);
     }
 
+    function testCan_updateMetadataRendererTokenURIToSecondDropWithBundle()
+        public
+    {
+        vm.warp(block.timestamp + ws.secondsBetweenDrops());
+        ws.purchaseBundle{value: 0.0333 ether}(1);
+        vm.prank(address(ws));
+        string memory dmrMetadata = dmr.tokenURI(1);
+        string memory wsMetadata = string(abi.encodePacked(ws.songURI(4), "1"));
+        assertEq(dmrMetadata, wsMetadata);
+    }
+
+    function testCan_updateMetadataRendererTokenURIToFinalDropWithBundle()
+        public
+    {
+        vm.warp(ws.publicSaleEnd() - 1);
+        ws.purchaseBundle{value: 0.0333 ether}(1);
+        vm.prank(address(ws));
+        string memory dmrMetadata = dmr.tokenURI(1);
+        string memory wsMetadata = string(
+            abi.encodePacked(ws.songURI(12), "1")
+        );
+        assertEq(dmrMetadata, wsMetadata);
+    }
+
     /// -----------------------------------------------------------------------
     /// bundle testing
     /// -----------------------------------------------------------------------
@@ -296,38 +320,58 @@ contract WayspaceTest is Test {
     /// -----------------------------------------------------------------------
     function testCan_puzzleCompleted() public {
         vm.warp(ws.publicSaleEnd() - 1);
-        assertFalse(ws.puzzleCompleted(ws.tokensOfOwner(address(this))));
         for (uint8 i = 1; i <= 12; i++) {
+            vm.expectRevert("Missing Pieces.");
+            ws.puzzleCompleted();
             ws.purchaseTrack{value: 0.0222 ether}(1, i);
             assertEq(ws.songCount(i), 1);
         }
-        assertTrue(ws.puzzleCompleted(ws.tokensOfOwner(address(this))));
+        assertEq(ws.songCount(13), 0);
+        assertEq(ws.songCount(14), 0);
+        ws.puzzleCompleted();
+        assertEq(ws.songCount(13), 1);
+        assertEq(ws.songCount(14), 1);
     }
 
     function testCan_ownsFullAlbum() public {
         vm.warp(ws.publicSaleEnd() - 1);
-        assertFalse(ws.ownsSongId(ws.tokensOfOwner(address(this)), 13));
+        assertFalse(ws.ownsSongId(13));
         for (uint8 i = 1; i <= 12; i++) {
             ws.purchaseTrack{value: 0.0222 ether}(1, i);
             assertEq(ws.songCount(i), 1);
         }
 
-        uint256[] memory _ownedTokens = ws.tokensOfOwner(address(this));
         for (uint8 i = 1; i <= 12; i++) {
-            assertTrue(ws.ownsSongId(_ownedTokens, i));
+            assertTrue(ws.ownsSongId(i));
         }
     }
 
-    function testCan_airdrop() public {
-        vm.warp(ws.publicSaleEnd() - 1);
-        assertFalse(ws.ownsSongId(ws.tokensOfOwner(address(this)), 13));
-        for (uint8 i = 1; i <= 12; i++) {
-            ws.purchaseTrack{value: 0.0222 ether}(1, i);
-            assertEq(ws.songCount(i), 1);
-        }
+    /// -----------------------------------------------------------------------
+    /// missing pieces testing
+    /// -----------------------------------------------------------------------
+    function testCan_missingAllPieces() public {
+        string memory missingPieces = ws.missingPieces();
+        assertTrue(bytes(missingPieces).length > 0);
+        assertEq(missingPieces, "1,2,3,4,5,6,7,8,9,10,11,12");
+    }
 
-        uint256[] memory _ownedTokens = ws.tokensOfOwner(address(this));
-        assertTrue(ws.puzzleCompleted(_ownedTokens));
-        assertFalse(ws.ownsSongId(_ownedTokens, 13));
+    function testCan_missingLastPiece() public {
+        vm.warp(ws.publicSaleEnd() - 1);
+        for (uint8 i = 1; i <= 11; i++) {
+            ws.purchaseTrack{value: 0.0222 ether}(1, i);
+        }
+        string memory missingPieces = ws.missingPieces();
+        assertEq(missingPieces, "12");
+    }
+
+    function testCan_missingMiddlePieces() public {
+        vm.warp(ws.publicSaleEnd() - 1);
+        for (uint8 i = 1; i <= 12; i++) {
+            if (i != 3 && i != 7) {
+                ws.purchaseTrack{value: 0.0222 ether}(1, i);
+            }
+        }
+        string memory missingPieces = ws.missingPieces();
+        assertEq(missingPieces, "3,7");
     }
 }

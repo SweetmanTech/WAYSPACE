@@ -74,7 +74,7 @@ contract AlbumMetadataTest is Test {
         assertEq(metadata.metadataRenderer(), address(dmr));
     }
 
-    function testCan_setContractURI() public {
+    function testCan_contractURI() public {
         vm.prank(address(metadata));
         assertEq(
             dmr.contractURI(),
