@@ -7,8 +7,9 @@ import "./lib/TeamSplits.sol";
 import "./interfaces/IMetadataRenderer.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 
-contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits, Ownable {
+contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits, Ownable, IERC2981 {
     constructor(string[] memory _musicMetadata, address _dropMetadataRenderer)
         PuzzleDrop("WAYSPACE", "JACKIE")
         AlbumMetadata(_dropMetadataRenderer, _musicMetadata)
@@ -170,5 +171,32 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits, Ownable {
         _mint(_to, 1);
         _setSongURI(_nextTokenId(), 1, 14);
         _mint(_to, 1);
+    }
+
+    /// @dev Get royalty information for token
+    /// @param _salePrice Sale price for the token
+    function royaltyInfo(uint256 _tokenId, uint256 _salePrice)
+        external
+        view
+        override
+        returns (address receiver, uint256 royaltyAmount)
+    {
+        uint8 _songId = songIds[_tokenId];
+        return (recipients()[_songId - 1], (_salePrice * 1000) / 10_000);
+    }
+
+    /// @notice ERC165 supports interface
+    /// @param interfaceId interface id to check if supported
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(IERC165, IERC721A, ERC721A)
+        returns (bool)
+    {
+        return
+            super.supportsInterface(interfaceId) ||
+            type(Ownable).interfaceId == interfaceId ||
+            type(IERC2981).interfaceId == interfaceId ||
+            type(IERC721A).interfaceId == interfaceId;
     }
 }

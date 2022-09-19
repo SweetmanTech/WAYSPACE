@@ -411,4 +411,27 @@ contract WayspaceTest is Test {
         ws.adminAirdropPuzzle(_recipients);
         assertEq(ws.balanceOf(address(1)), 6);
     }
+
+    /// -----------------------------------------------------------------------
+    /// royalty info testing
+    /// -----------------------------------------------------------------------
+    function testCan_pay10PercentRoyalties() public {
+        uint256 _tokenId = ws.purchaseTrack{value: 0.0222 ether}(1, 1);
+        (, uint256 royaltyAmount) = ws.royaltyInfo(_tokenId, 1 ether);
+        assertEq(royaltyAmount, 0.1 ether);
+    }
+
+    function testCan_payRoyaltiesToSplits() public {
+        vm.warp(ws.publicSaleEnd() - 1);
+        assertFalse(ws.ownsTrackNumber(address(this), 13));
+        for (uint8 i = 1; i <= 12; i++) {
+            uint256 _tokenId = ws.purchaseTrack{value: 0.0222 ether}(1, i);
+            (address _recipient, uint256 royaltyAmount) = ws.royaltyInfo(
+                _tokenId,
+                1 ether
+            );
+            assertEq(royaltyAmount, 0.1 ether);
+            assertEq(_recipient, ws.recipients()[i - 1]);
+        }
+    }
 }
