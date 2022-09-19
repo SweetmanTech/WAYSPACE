@@ -8,6 +8,7 @@ import "src/lib/ZoraDropMetadataRenderer/DropMetadataRenderer.sol";
 contract WayspaceTest is Test {
     WAYSPACE ws;
     DropMetadataRenderer dmr;
+    address[] _recipients = new address[](3);
 
     function setUp() public {
         dmr = new DropMetadataRenderer();
@@ -18,6 +19,9 @@ contract WayspaceTest is Test {
             );
         }
         ws = new WAYSPACE(_musicMetadata, address(dmr));
+        for (uint32 i = 0; i < _recipients.length; i++) {
+            _recipients[i] = address(1);
+        }
     }
 
     /// -----------------------------------------------------------------------
@@ -335,14 +339,14 @@ contract WayspaceTest is Test {
 
     function testCan_ownsFullAlbum() public {
         vm.warp(ws.publicSaleEnd() - 1);
-        assertFalse(ws.ownsSongId(13));
+        assertFalse(ws.ownsTrackNumber(address(this), 13));
         for (uint8 i = 1; i <= 12; i++) {
             ws.purchaseTrack{value: 0.0222 ether}(1, i);
             assertEq(ws.songCount(i), 1);
         }
 
         for (uint8 i = 1; i <= 12; i++) {
-            assertTrue(ws.ownsSongId(i));
+            assertTrue(ws.ownsTrackNumber(address(this), i));
         }
     }
 
@@ -350,7 +354,7 @@ contract WayspaceTest is Test {
     /// missing pieces testing
     /// -----------------------------------------------------------------------
     function testCan_missingAllPieces() public {
-        string memory missingPieces = ws.missingPieces();
+        string memory missingPieces = ws.missingPieces(msg.sender);
         assertTrue(bytes(missingPieces).length > 0);
         assertEq(missingPieces, "1,2,3,4,5,6,7,8,9,10,11,12");
     }
@@ -360,7 +364,7 @@ contract WayspaceTest is Test {
         for (uint8 i = 1; i <= 11; i++) {
             ws.purchaseTrack{value: 0.0222 ether}(1, i);
         }
-        string memory missingPieces = ws.missingPieces();
+        string memory missingPieces = ws.missingPieces(address(this));
         assertEq(missingPieces, "12");
     }
 
@@ -371,7 +375,63 @@ contract WayspaceTest is Test {
                 ws.purchaseTrack{value: 0.0222 ether}(1, i);
             }
         }
-        string memory missingPieces = ws.missingPieces();
+        string memory missingPieces = ws.missingPieces(address(this));
         assertEq(missingPieces, "3,7");
+    }
+
+    /// -----------------------------------------------------------------------
+    /// ownable testing
+    /// -----------------------------------------------------------------------
+    function testCan_findOwner() public {
+        assertEq(ws.owner(), address(this));
+    }
+
+    function testFail_nonOwnerAirdrop() public {
+        vm.prank(address(1));
+        ws.adminAirdropPuzzle(_recipients);
+    }
+
+    function testCan_airdropPuzzle() public {
+        assertEq(ws.balanceOf(address(1)), 0);
+
+        ws.adminAirdropPuzzle(_recipients);
+        for (uint32 i = 0; i < _recipients.length; i++) {
+            assertEq(ws.ownerOf(i + 1), address(1));
+        }
+        assertEq(ws.balanceOf(address(1)), 6);
+    }
+
+    function testCan_airdropPuzzleAfterOwnershipTransferred() public {
+        vm.prank(address(2));
+        vm.expectRevert("Ownable: caller is not the owner");
+        ws.adminAirdropPuzzle(_recipients);
+
+        ws.transferOwnership(address(2));
+        vm.prank(address(2));
+        ws.adminAirdropPuzzle(_recipients);
+        assertEq(ws.balanceOf(address(1)), 6);
+    }
+
+    /// -----------------------------------------------------------------------
+    /// royalty info testing
+    /// -----------------------------------------------------------------------
+    function testCan_pay10PercentRoyalties() public {
+        uint256 _tokenId = ws.purchaseTrack{value: 0.0222 ether}(1, 1);
+        (, uint256 royaltyAmount) = ws.royaltyInfo(_tokenId, 1 ether);
+        assertEq(royaltyAmount, 0.1 ether);
+    }
+
+    function testCan_payRoyaltiesToSplits() public {
+        vm.warp(ws.publicSaleEnd() - 1);
+        assertFalse(ws.ownsTrackNumber(address(this), 13));
+        for (uint8 i = 1; i <= 12; i++) {
+            uint256 _tokenId = ws.purchaseTrack{value: 0.0222 ether}(1, i);
+            (address _recipient, uint256 royaltyAmount) = ws.royaltyInfo(
+                _tokenId,
+                1 ether
+            );
+            assertEq(royaltyAmount, 0.1 ether);
+            assertEq(_recipient, ws.recipients()[i - 1]);
+        }
     }
 }

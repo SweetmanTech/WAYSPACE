@@ -6,11 +6,14 @@ import "./lib/AlbumMetadata.sol";
 import "./lib/TeamSplits.sol";
 import "./interfaces/IMetadataRenderer.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 
-contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits {
+contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits, Ownable, IERC2981 {
     constructor(string[] memory _musicMetadata, address _dropMetadataRenderer)
         PuzzleDrop("WAYSPACE", "JACKIE")
         AlbumMetadata(_dropMetadataRenderer, _musicMetadata)
+        Ownable()
     {}
 
     /// @notice This allows the user to purchase the latest drop
@@ -95,10 +98,10 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits {
     }
 
     /// @notice returns missing pieces in the Wayspace puzzle.
-    function missingPieces() public view returns (string memory) {
+    function missingPieces(address _owner) public view returns (string memory) {
         string memory _missingTokens;
         for (uint8 _songId = 1; _songId <= 12; ) {
-            if (!ownsSongId(_songId)) {
+            if (!ownsTrackNumber(_owner, _songId)) {
                 _missingTokens = string(
                     abi.encodePacked(
                         _missingTokens,
@@ -116,14 +119,18 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits {
 
     /// @notice returns if caller has completed the Wayspace puzzle.
     function puzzleCompleted() external {
-        string memory _missingPieces = missingPieces();
+        string memory _missingPieces = missingPieces(msg.sender);
         require(bytes(_missingPieces).length == 0, "Missing Pieces.");
-        _airdropFullAlbum();
+        _airdropPuzzle(msg.sender);
     }
 
     /// @notice returns if caller already owns Wayspace [Full Album with Lyrics].
-    function ownsSongId(uint8 _songId) public view returns (bool) {
-        uint256[] memory _ownedTokens = tokensOfOwner(msg.sender);
+    function ownsTrackNumber(address _holder, uint8 _songId)
+        public
+        view
+        returns (bool)
+    {
+        uint256[] memory _ownedTokens = tokensOfOwner(_holder);
 
         for (uint256 i = 0; i < _ownedTokens.length; ) {
             uint8 songId = songIds[_ownedTokens[i]];
@@ -138,11 +145,58 @@ contract WAYSPACE is AlbumMetadata, PuzzleDrop, TeamSplits {
         return false;
     }
 
-    /// @notice airdrops the full album
-    function _airdropFullAlbum() internal {
+    /// @notice airdrops the completed puzzle
+    function adminAirdropPuzzle(address[] calldata recipients)
+        external
+        onlyOwner
+        onlyPublicSaleActive
+    {
+        uint256 atId = _nextTokenId();
+        uint256 startAt = atId;
+
+        unchecked {
+            for (
+                uint256 endAt = atId + recipients.length;
+                atId < endAt;
+                atId++
+            ) {
+                _airdropPuzzle(recipients[atId - startAt]);
+            }
+        }
+    }
+
+    /// @notice airdrops the completed puzzle
+    function _airdropPuzzle(address _to) internal {
         _setSongURI(_nextTokenId(), 1, 13);
-        _mint(msg.sender, 1);
+        _mint(_to, 1);
         _setSongURI(_nextTokenId(), 1, 14);
-        _mint(msg.sender, 1);
+        _mint(_to, 1);
+    }
+
+    /// @dev Get royalty information for token
+    /// @param _salePrice Sale price for the token
+    function royaltyInfo(uint256 _tokenId, uint256 _salePrice)
+        external
+        view
+        override
+        returns (address receiver, uint256 royaltyAmount)
+    {
+        uint8 _songId = songIds[_tokenId];
+        return (recipients()[_songId - 1], (_salePrice * 1000) / 10_000);
+    }
+
+    /// @notice ERC165 supports interface
+    /// @param interfaceId interface id to check if supported
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(IERC165, IERC721A, ERC721A)
+        returns (bool)
+    {
+        return
+            super.supportsInterface(interfaceId) ||
+            type(Ownable).interfaceId == interfaceId ||
+            type(IERC2981).interfaceId == interfaceId ||
+            type(IERC721A).interfaceId == interfaceId;
     }
 }
